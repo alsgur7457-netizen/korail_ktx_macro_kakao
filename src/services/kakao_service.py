@@ -21,6 +21,7 @@ logger = get_logger(__name__)
 KAUTH_HOST = "https://kauth.kakao.com"
 KAPI_HOST = "https://kapi.kakao.com"
 TEXT_LIMIT = 200  # text template limit
+AUTH_COMMAND = "python src/kakao_auth.py"
 REFRESH_MARGIN_SECONDS = 300
 
 
@@ -121,7 +122,8 @@ class KakaoService:
                     self._token = json.load(f)
             except FileNotFoundError:
                 raise KakaoAuthError(
-                    f"카카오 토큰 파일이 없습니다 ({self.token_file}). `make kakao-auth`를 먼저 실행하세요."
+                    f"카카오 토큰 파일이 없습니다 ({self.token_file}). "
+                    f"카카오 연결부터 하세요: {AUTH_COMMAND} (윈도우: py -3.12 -m pipenv run {AUTH_COMMAND})"
                 ) from None
             except (OSError, json.JSONDecodeError) as e:
                 raise KakaoAuthError(f"카카오 토큰 파일을 읽지 못했습니다 ({self.token_file}): {e}") from e
@@ -130,7 +132,7 @@ class KakaoService:
     def _refresh(self) -> None:
         token = self._load_token()
         if not token.get("refresh_token"):
-            raise KakaoAuthError("refresh_token이 없습니다. `make kakao-auth`를 다시 실행하세요.")
+            raise KakaoAuthError(f"refresh_token이 없습니다. 카카오 연결을 다시 하세요: {AUTH_COMMAND}")
         self._require_key()
         payload = self._token_request({
             "grant_type": "refresh_token",

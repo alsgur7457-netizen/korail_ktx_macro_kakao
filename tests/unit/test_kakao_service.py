@@ -71,7 +71,7 @@ class TestAuth:
 
     def test_missing_token_file_points_to_setup(self, kakao):
         svc, _ = kakao
-        with pytest.raises(KakaoAuthError, match="kakao-auth"):
+        with pytest.raises(KakaoAuthError, match="kakao_auth.py"):
             svc.check()
 
     def test_expired_access_token_is_refreshed_and_refresh_token_kept(self, kakao):
