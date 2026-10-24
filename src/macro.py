@@ -60,6 +60,15 @@ class SearchJob:
             f"{TRAIN_TYPES[self.train_type][1]}, {SEAT_OPTIONS[self.seat_option][1]}, {seats}"
         )
 
+    def to_cli_args(self) -> List[str]:
+        """Command-line options that rebuild this job in another process."""
+        return [
+            "--date", self.dep_date, "--from", self.src, "--to", self.dst,
+            "--time", self.dep_time[:4], "--until", self.max_dep_time,
+            "--type", self.train_type, "--seat", self.seat_option,
+            "--passengers", str(self.passengers), "--strategy", self.seat_strategy,
+        ]
+
 
 # ------------------------------------------------------------------ arguments
 

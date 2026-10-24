@@ -65,6 +65,12 @@ class Settings:
     PAYMENT_REMINDER_MINUTES: int = int(os.environ.get('PAYMENT_REMINDER_MINUTES', '3'))
     PAYMENT_CHECK_SECONDS: int = int(os.environ.get('PAYMENT_CHECK_SECONDS', '60'))
 
+    # Web control panel (src/web.py)
+    WEB_PIN: str = os.environ.get('WEB_PIN', '')
+    WEB_HOST: str = os.environ.get('WEB_HOST', '0.0.0.0')
+    WEB_PORT: int = int(os.environ.get('WEB_PORT', '8000'))
+    WEB_STATE_FILE: str = os.path.expanduser(os.environ.get('WEB_STATE_FILE', '~/.korail_bot_web.json'))
+
     # Logging Configuration
     LOG_LEVEL: str = os.environ.get('LOG_LEVEL', 'INFO').upper()
     LOG_FORMAT: str = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'

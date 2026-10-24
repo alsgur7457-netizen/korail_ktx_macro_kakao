@@ -25,8 +25,12 @@ check:			## Validate .env settings without searching
 	pipenv run python src/macro.py --dry-run
 
 .PHONY: run
-run:			## Run the reservation macro (settings from .env)
+run:			## Run the reservation macro once (conditions from .env)
 	pipenv run python src/macro.py
+
+.PHONY: web
+web:			## Start the web control panel (enter conditions from a phone)
+	pipenv run python src/web.py
 
 .PHONY: shell
 shell:			## Open pipenv shell
