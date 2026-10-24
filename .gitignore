@@ -1,16 +1,16 @@
-*.ipynb
-*.pyc
-certs_real/*
-*.pem
-botToken.py
+# 비밀 정보
 .env
 .envrc
 .mise.local.toml
+
+# 카카오 토큰 · 코레일 기기 식별자 (Docker 볼륨)
+data/
+
+# Python
+*.pyc
 __pycache__/
+.venv/
+.pytest_cache/
 *.egg-info/
 dist/
 build/
-.pytest_cache/
-.venv/
-data/
-dump.rdb

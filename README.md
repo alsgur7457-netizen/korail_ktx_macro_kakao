@@ -3,12 +3,13 @@
 매진된 KTX 열차를 계속 조회하다가 좌석이 나오면 자동으로 예약하고, **카카오톡 '나와의 채팅'** 으로 알려주는 프로그램입니다.
 예약 후에는 결제가 확인될 때까지 몇 분마다 결제 독촉 알림을 보내고, 결제 완료나 기한 만료도 알려줍니다.
 
-> 텔레그램 봇 버전에서 텔레그램을 걷어내고 카카오톡 알림 + 설정 파일 방식으로 바꾼 버전입니다.
+> [GeunSam2/korail_KTX_macro_telegrambot](https://github.com/GeunSam2/korail_KTX_macro_telegrambot)(텔레그램 봇)을 포크해 카카오톡 알림 + 설정 파일 방식으로 바꾼 버전입니다.
 
 ## 빠른 시작
 
 ```bash
-git clone <이 저장소> && cd korail_KTX_macro_telegrambot
+git clone https://github.com/alsgur7457-netizen/korail_ktx_macro_telegrambot.git
+cd korail_ktx_macro_telegrambot
 
 make setup        # pipenv 설치 (처음 한 번)
 make install      # 패키지 설치
