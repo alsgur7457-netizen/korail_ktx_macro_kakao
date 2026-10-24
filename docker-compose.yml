@@ -1,52 +1,18 @@
-version: '3.8'
-
 services:
-  app:
-    image: geunsam2/korailbot:latest
-    container_name: korail_bot
-    ports:
-      - "8000:8080"
-    environment:
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - REDIS_DB=0
-      - PYTHONUNBUFFERED=1
+  macro:
+    build: .
+    image: korail-kakao-macro
+    container_name: korail_macro
     env_file:
       - .env
-    depends_on:
-      redis:
-        condition: service_healthy
-    restart: unless-stopped
-    networks:
-      - korail_network
-
-  redis:
-    image: redis:7-alpine
-    container_name: korail_redis
-    ports:
-      - "6379:6379"
     volumes:
-      - redis_data:/data
-    command: >
-      redis-server
-      --appendonly yes
-      --maxmemory 512mb
-      --maxmemory-policy allkeys-lru
-      --save 60 1000
-      --loglevel notice
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 3s
-      retries: 5
-    restart: unless-stopped
-    networks:
-      - korail_network
-
-volumes:
-  redis_data:
-    driver: local
-
-networks:
-  korail_network:
-    driver: bridge
+      # Kakao token + Korail device identity survive container rebuilds
+      - ./data:/app/data
+    # A finished run (reserved, blocked, wrong password...) must not restart by itself:
+    # restarting could book a second ticket or hammer the login endpoint.
+    restart: "no"
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

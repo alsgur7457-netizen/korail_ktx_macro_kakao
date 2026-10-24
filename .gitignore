@@ -11,3 +11,6 @@ __pycache__/
 dist/
 build/
 .pytest_cache/
+.venv/
+data/
+dump.rdb

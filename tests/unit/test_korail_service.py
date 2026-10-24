@@ -164,3 +164,34 @@ class TestReserveTrain:
         fake.reservations.create.side_effect = AccessRestrictedError(403, "매크로", "-2000")
         with pytest.raises(KorailAccessRestrictedError):
             svc.reserve_train(_train("090000"))
+
+
+class TestPaymentState:
+    def test_pending_while_reservation_listed(self, service):
+        svc, fake = service
+        fake.reservations.find.return_value = MagicMock(rsv_id="R1")
+        assert svc.payment_state("R1") == "pending"
+        fake.tickets.all.assert_not_called()
+
+    def test_paid_when_ticket_issued(self, service):
+        svc, fake = service
+        fake.reservations.find.return_value = None
+        fake.tickets.all.return_value = [MagicMock(pnr_no="R0"), MagicMock(pnr_no="R1")]
+        assert svc.payment_state("R1") == "paid"
+
+    def test_gone_when_neither(self, service):
+        svc, fake = service
+        fake.reservations.find.return_value = None
+        fake.tickets.all.return_value = []
+        assert svc.payment_state("R1") == "gone"
+
+    def test_lookup_error_is_unknown(self, service):
+        svc, fake = service
+        fake.reservations.find.side_effect = KorailError("일시 오류", "S000")
+        assert svc.payment_state("R1") == "unknown"
+
+    def test_access_restriction_propagates(self, service):
+        svc, fake = service
+        fake.reservations.find.side_effect = AccessRestrictedError(403, "매크로", "-2000")
+        with pytest.raises(KorailAccessRestrictedError):
+            svc.payment_state("R1")

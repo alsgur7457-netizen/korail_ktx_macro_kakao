@@ -657,6 +657,34 @@ class KorailService:
             except Exception as e:
                 logger.error(f"Failed to cancel reservation {reservation}: {e}")
 
+    # ---------------------------------------------------------------- payment
+
+    def payment_state(self, rsv_id: str) -> str:
+        """
+        Where a reservation stands after it was made.
+
+        Returns:
+            "pending" (still waiting for payment), "paid" (ticket issued),
+            "gone" (cancelled or past the purchase deadline) or "unknown" (lookup failed)
+        """
+        if not self._korail_instance:
+            raise ValueError("Must login before checking payment")
+        self._check_session_refresh()
+        try:
+            if self._korail_instance.reservations.find(rsv_id):
+                return "pending"
+            if any(ticket.pnr_no == rsv_id for ticket in self._korail_instance.tickets.all()):
+                return "paid"
+            return "gone"
+        except NeedToLoginError:
+            self._logged_in = False
+            self._relogin()
+        except AccessRestrictedError as e:
+            raise KorailAccessRestrictedError(str(e)) from e
+        except Exception as e:
+            logger.warning(f"⚠️ Could not check payment for {rsv_id}: {type(e).__name__}: {e}")
+        return "unknown"
+
     @staticmethod
     def _extract_departure_time(train) -> int:
         """Departure time of a train as HHMM integer (0 if unknown)."""
