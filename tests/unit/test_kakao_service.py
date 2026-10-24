@@ -140,3 +140,4 @@ class TestExtractCode:
     def test_denied_consent(self):
         with pytest.raises(KakaoAuthError, match="거부"):
             extract_code("http://localhost:8080/kakao?error=access_denied&error_description=User%20denied")
+

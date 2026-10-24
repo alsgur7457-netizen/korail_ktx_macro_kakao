@@ -14,9 +14,14 @@ from typing import Optional
 def _load_dotenv(path: Path) -> None:
     """Minimal KEY=VALUE loader so `.env` works without mise/docker env_file."""
     try:
-        lines = path.read_text(encoding='utf-8').splitlines()
-    except (FileNotFoundError, IsADirectoryError):
+        data = path.read_bytes()
+    except (FileNotFoundError, IsADirectoryError, PermissionError):
         return
+    try:
+        text = data.decode('utf-8-sig')  # Windows Notepad may add a BOM
+    except UnicodeDecodeError:
+        text = data.decode('cp949', errors='replace')  # Notepad "ANSI" on Korean Windows
+    lines = text.splitlines()
     for raw in lines:
         line = raw.strip()
         if not line or line.startswith('#') or '=' not in line:
