@@ -8,8 +8,8 @@
 ## 빠른 시작
 
 ```bash
-git clone https://github.com/alsgur7457-netizen/korail_ktx_macro_telegrambot.git
-cd korail_ktx_macro_telegrambot
+git clone https://github.com/alsgur7457-netizen/korail_ktx_macro_kakao.git
+cd korail_ktx_macro_kakao
 
 make setup        # pipenv 설치 (처음 한 번)
 make install      # 패키지 설치
