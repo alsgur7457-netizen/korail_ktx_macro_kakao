@@ -8,7 +8,8 @@ import pytest
 import macro
 from macro import MacroRunner, build_job, parse_args
 from services.korail_service import (
-    DuplicateReservationError, KorailAccessRestrictedError, MultiReservationResult, TrainType
+    DuplicateReservationError, KorailAccessRestrictedError, KorailClientUnsupportedError, MultiReservationResult,
+    TrainType,
 )
 
 TODAY = datetime(2026, 10, 24, 9, 0)
@@ -151,6 +152,12 @@ class TestRun:
         korail.search_and_reserve_loop.side_effect = KorailAccessRestrictedError("HTTP 403 (-8202)")
         assert r.run() == 1
         assert "이용 제한" in _messages(kakao)[-1]
+
+    def test_unsupported_client_stops_with_explanation(self, runner):
+        r, korail, kakao = runner
+        korail.search_and_reserve_loop.side_effect = KorailClientUnsupportedError("최신 버전으로 업데이트 (-8204)")
+        assert r.run() == 1
+        assert "보안 업데이트" in _messages(kakao)[-1] and korail.search_and_reserve_loop.call_count == 1
 
     def test_past_departure_stops(self, runner):
         r, korail, kakao = runner

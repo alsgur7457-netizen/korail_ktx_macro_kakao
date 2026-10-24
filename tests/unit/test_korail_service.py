@@ -14,7 +14,9 @@ from pykorail.exceptions import (
     SoldOutError,
 )
 
-from services.korail_service import KorailAccessRestrictedError, KorailService, TrainType
+from services.korail_service import (
+    KorailAccessRestrictedError, KorailClientUnsupportedError, KorailService, TrainType
+)
 
 
 def _train(dep_time: str):
@@ -195,3 +197,26 @@ class TestPaymentState:
         fake.reservations.find.side_effect = AccessRestrictedError(403, "매크로", "-2000")
         with pytest.raises(KorailAccessRestrictedError):
             svc.payment_state("R1")
+
+
+class TestUnsupportedClient:
+    """-8204: Korail wants a newer app (device attestation); polling on is pointless."""
+
+    MESSAGE = "원활한 예매 및 결제 서비스를 위해 최신 버전으로 업데이트해 주세요."
+
+    def test_search_stops_instead_of_retrying(self, service):
+        svc, fake = service
+        fake.trains.search.side_effect = KorailError(self.MESSAGE, "-8204")
+        with pytest.raises(KorailClientUnsupportedError):
+            svc.search_trains("20261101", "대전", "서울", verbose=False)
+
+    def test_reserve_stops(self, service):
+        svc, fake = service
+        fake.reservations.create.side_effect = KorailError(self.MESSAGE, "-8204")
+        with pytest.raises(KorailClientUnsupportedError):
+            svc.reserve_train(_train("090000"))
+
+    def test_other_korail_errors_stay_transient(self, service):
+        svc, fake = service
+        fake.trains.search.side_effect = KorailError("서비스 일시중지", "S000")
+        assert svc.search_trains("20261101", "대전", "서울", verbose=False) == []

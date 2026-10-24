@@ -39,6 +39,7 @@ __all__ = [
     "KorailService",
     "DuplicateReservationError",
     "KorailAccessRestrictedError",
+    "KorailClientUnsupportedError",
     "TrainType",
     "ReserveOption",
 ]
@@ -54,6 +55,22 @@ class KorailAccessRestrictedError(Exception):
     Retrying from the same network only extends the block, so callers should stop
     the search loop and tell the user.
     """
+
+
+class KorailClientUnsupportedError(KorailAccessRestrictedError):
+    """Korail no longer accepts this client version (-8204 "최신 버전으로 업데이트").
+
+    Since 코레일+ 7.0.10 the server requires device attestation that pykorail does not
+    provide. Every further request fails the same way, so stop instead of polling.
+    """
+
+
+UNSUPPORTED_CLIENT_CODE = "-8204"
+
+
+def _raise_if_unsupported(e: Exception) -> None:
+    if getattr(e, "code", None) == UNSUPPORTED_CLIENT_CODE or f"({UNSUPPORTED_CLIENT_CODE})" in str(e):
+        raise KorailClientUnsupportedError(str(e)) from e
 
 
 class MultiReservationResult:
@@ -374,6 +391,7 @@ class KorailService:
             logger.error(f"❌ Korail HTTP error while searching: {e}")
             return []
         except KorailError as e:
+            _raise_if_unsupported(e)
             # e.g. S000 서비스 일시중지 (maintenance) — transient, keep looping
             logger.warning(f"⚠️ Korail returned an error while searching: {e}")
             return []
@@ -449,6 +467,7 @@ class KorailService:
             logger.error(f"❌ Korail HTTP error while reserving: {e}")
             return None
         except KorailError as e:
+            _raise_if_unsupported(e)
             error_msg = str(e)
             code = getattr(e, "code", None)
             if "동일한 예약 내역" in error_msg or code == "WRR800029":
@@ -681,6 +700,9 @@ class KorailService:
             self._relogin()
         except AccessRestrictedError as e:
             raise KorailAccessRestrictedError(str(e)) from e
+        except KorailError as e:
+            _raise_if_unsupported(e)
+            logger.warning(f"⚠️ Could not check payment for {rsv_id}: {e}")
         except Exception as e:
             logger.warning(f"⚠️ Could not check payment for {rsv_id}: {type(e).__name__}: {e}")
         return "unknown"

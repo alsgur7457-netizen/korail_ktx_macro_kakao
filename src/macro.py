@@ -21,7 +21,8 @@ from typing import Callable, List, Optional
 from config.settings import settings
 from services.kakao_service import KakaoAuthError, KakaoService
 from services.korail_service import (
-    DuplicateReservationError, KorailAccessRestrictedError, KorailService, ReserveOption, TrainType
+    DuplicateReservationError, KorailAccessRestrictedError, KorailClientUnsupportedError, KorailService,
+    ReserveOption, TrainType,
 )
 from utils.logger import get_logger
 
@@ -225,6 +226,12 @@ class MacroRunner:
         self.notify(f"🔍 빈자리 검색을 시작합니다\n{self.job.summary()}")
         try:
             result = self._search()
+        except KorailClientUnsupportedError:
+            self.notify(
+                "🚫 코레일 앱 보안 업데이트로 열차 조회가 거부되어 검색을 멈췄습니다 (-8204).\n"
+                "pykorail이 새 보안 방식을 지원하기 전까지는 동작하지 않습니다."
+            )
+            return 1
         except KorailAccessRestrictedError as e:
             self.notify(
                 f"🚫 코레일 이용 제한으로 검색을 멈췄습니다\n{e}\n"

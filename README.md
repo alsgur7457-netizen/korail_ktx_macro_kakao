@@ -5,6 +5,11 @@
 
 > [GeunSam2/korail_KTX_macro_telegrambot](https://github.com/GeunSam2/korail_KTX_macro_telegrambot)(텔레그램 봇)을 포크해 카카오톡 알림 + 설정 파일 방식으로 바꾼 버전입니다.
 
+> ⚠️ **현재 상태 (2026-10-24): 열차 조회가 동작하지 않습니다.**
+> 코레일이 2026-10-21 코레일+ 7.0.10부터 기기 인증(DynaPath 2.0.1)을 요구해, pykorail 0.2.2~0.4.0 모두 조회 단계에서
+> `-8204 최신 버전으로 업데이트해 주세요` 로 거부됩니다. 이 경우 매크로는 반복 요청하지 않고 즉시 멈춘 뒤 카톡으로 알립니다.
+> pykorail 쪽 진행 상황: [devgyurak/pykorail#132](https://github.com/devgyurak/pykorail/issues/132)
+
 ## 빠른 시작
 
 ```bash
