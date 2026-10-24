@@ -53,7 +53,8 @@ class TestAuth:
         assert "client_secret" not in sent
         saved = json.load(open(svc.token_file))
         assert saved["access_token"] == "a" and saved["refresh_token"] == "r"
-        assert os.stat(svc.token_file).st_mode & 0o777 == 0o600
+        if os.name == "posix":  # Windows has no Unix permission bits
+            assert os.stat(svc.token_file).st_mode & 0o777 == 0o600
 
     def test_client_secret_is_sent_when_configured(self, tmp_path):
         session = MagicMock()
